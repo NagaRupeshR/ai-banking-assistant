@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Banking Complaint Resolution Report</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            background: #f5f7fb;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+            color: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(13, 110, 253, 0.20);
+        }
+
+        .report-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            transition: 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-item {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .badge-soft {
+            background: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .progress {
+            height: 26px;
+            border-radius: 999px;
+        }
+
+        .progress-bar {
+            font-weight: 600;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #eef4ff;
+            color: #0d6efd;
+        }
+
+        .mermaid {
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .report-card,
+            .metric-card,
+            .hero-card {
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+
+    <!-- Header -->
+    <div class="hero-card p-5 mb-4">
+        <h1 class="h2 fw-bold mb-2">
+            <i class="bi bi-bank2 me-2"></i>
+            AI Banking Complaint Resolution Report
+        </h1>
+        <p class="mb-0 opacity-75">
+            Professional AI-powered analysis using ML + RAG + Groq LLM
+        </p>
+    </div>
+
+    <!-- Warning -->
+    {% if result.warning %}
+    <div class="alert alert-warning report-card">
+        <strong>⚠️ Confidence Warning:</strong>
+        {{ result.warning }}
+    </div>
+    {% endif %}
+
+    <!-- Summary Metrics -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="metric-card card p-4 text-center h-100">
+                <div class="metric-label">Category</div>
+                <div class="metric-value text-primary">{{ result.category }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="metric-card card p-4 text-center h-100">
+                <div class="metric-label">Urgency</div>
+                <div class="metric-value text-danger">{{ result.urgency }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="metric-card card p-4 text-center h-100">
+                <div class="metric-label">Priority</div>
+                <div class="metric-value text-warning">{{ result.priority }}</div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="metric-card card p-4 text-center h-100">
+                <div class="metric-label">Success Probability</div>
+                <div class="metric-value text-success">{{ result.success_probability }}</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Confidence + Eligibility -->
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-6">
+            <div class="report-card card p-4 h-100">
+                <h5 class="section-title">🎯 Confidence Score</h5>
+
+                <div class="progress mb-3">
+                    <div
+                        class="progress-bar bg-success"
+                        role="progressbar"
+                        id="confidenceBar">
+                    </div>
+                </div>
+
+                <p class="text-muted mb-0">
+                    Raw Score: {{ result.confidence_score|floatformat:4 }}
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="report-card card p-4 h-100">
+                <h5 class="section-title">🏛 RBI Ombudsman Eligibility</h5>
+                <p class="mb-0">{{ result.eligibility }}</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Estimated Time -->
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">⏳ Estimated Resolution Time</h5>
+        <p class="fs-5 fw-bold text-primary mb-0">
+            {{ result.estimated_time }}
+        </p>
+    </div>
+
+    <!-- Resolution Steps -->
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">📝 Step-by-Step Resolution Plan</h5>
+
+        <ol class="list-group list-group-numbered">
+            {% for step in result.resolution_steps %}
+            <li class="list-group-item border-0 ps-2">
+                {{ step }}
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <!-- Timeline -->
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">📅 Resolution Timeline</h5>
+
+        {% for item in result.timeline %}
+        <div class="timeline-item">
+            <span class="badge-soft me-2">Step {{ forloop.counter }}</span>
+            {{ item }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Preventive Advice -->
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">🛡 Preventive Advice</h5>
+
+        <ul class="list-group list-group-flush">
+            {% for advice in result.preventive_advice %}
+            <li class="list-group-item border-0 ps-0">
+                ✅ {{ advice }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Top Predictions -->
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">🤖 Top Classifier Predictions</h5>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Category</th>
+                        <th>Probability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in result.top_predictions %}
+                    <tr>
+                        <!-- Accessing dictionary keys cleanly via dot notation -->
+                        <td>{{ pred.label|title|cut:"_" }}</td>
+                        <td>{{ pred.probability|floatformat:4 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Flowchart -->
+    {% if result.mermaid_code %}
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">🧭 Complaint Resolution Flowchart</h5>
+
+        <div class="mermaid">
+{{ result.mermaid_code|safe }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Similar Cases -->
+    {% if result.similar_cases %}
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">📂 Similar Historical Cases</h5>
+
+        <ul class="list-group list-group-flush">
+            {% for case in result.similar_cases %}
+            <li class="list-group-item border-0 ps-0">
+                📌 {{ case }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- RBI Resources -->
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">🏛 Official RBI Resources</h5>
+
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item border-0 ps-0">
+                🌐 <a href="https://cms.rbi.org.in" target="_blank">RBI CMS Portal</a>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+                📞 RBI Helpline: <strong>14448</strong>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+                ✉️ <a href="mailto:crpc@rbi.org.in">crpc@rbi.org.in</a>
+            </li>
+            <li class="list-group-item border-0 ps-0">
+                🏦 <a href="https://www.rbi.org.in" target="_blank">Reserve Bank of India</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Explainability -->
+    {% if result.retrieved_chunks %}
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">🔍 Explainability: Retrieved RBI Chunks</h5>
+
+        <div class="accordion" id="ragAccordion">
+            {% for chunk in result.retrieved_chunks %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                    <button
+                        class="accordion-button {% if not forloop.first %}collapsed{% endif %}"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ forloop.counter }}">
+                        Chunk {{ forloop.counter }}
+                    </button>
+                </h2>
+
+                <div
+                    id="collapse{{ forloop.counter }}"
+                    class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                    data-bs-parent="#ragAccordion">
+                    <div class="accordion-body">
+                        {{ chunk|truncatechars:700 }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- External Web RAG Sources -->
+    {% if result.api_sources %}
+    <div class="report-card card p-4 mb-4">
+        <h5 class="section-title">🌐 External Web Insights (API RAG - Unverified)</h5>
+
+        <div class="accordion" id="apiRagAccordion">
+
+            {% for item in result.api_sources %}
+            <div class="accordion-item">
+
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#api{{ forloop.counter }}">
+                        {{ item.title }}
+                    </button>
+                </h2>
+
+                <div id="api{{ forloop.counter }}"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#apiRagAccordion">
+
+                    <div class="accordion-body">
+
+                        <p>
+                            <strong>Source URL:</strong><br>
+                            <a href="{{ item.url }}" target="_blank">
+                                {{ item.url }}
+                            </a>
+                        </p>
+
+                        <p>
+                            <strong>Snippet:</strong><br>
+                            {{ item.snippet }}
+                        </p>
+
+                        <hr>
+
+                        <p>
+                            <strong>Extracted Content Preview:</strong>
+                        </p>
+
+                        <div style="max-height: 250px; overflow:auto;">
+                            {{ item.content|truncatechars:1200 }}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-4 no-print">
+        <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg me-2">
+            🔄 Analyze Another Complaint
+        </a>
+
+        <a href="{% url 'download_pdf' analysis.id %}"
+           class="btn btn-success btn-lg">
+            📄 Download PDF Report
+        </a>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<!-- Mermaid JS -->
+<script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose'
+    });
+</script>
+
+<!-- Confidence Bar -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const rawScore = parseFloat("{{ result.confidence_score|default:'0' }}") || 0;
+        const percentage = (rawScore).toFixed(2);
+
+        const bar = document.getElementById("confidenceBar");
+        bar.style.width = percentage + "%";
+        bar.textContent = percentage + "%";
+    });
+</script>
+
+</body>
+</html>
