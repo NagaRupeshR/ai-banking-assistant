@@ -12,13 +12,29 @@ TFIDF_PATH = os.path.join(MODEL_DIR, 'tfidf.pkl')
 LABEL_ENCODER_PATH = os.path.join(MODEL_DIR, 'label_encoder.pkl')
 
 print('Loading complaint classifier...')
-model = joblib.load(MODEL_PATH)
-tfidf = joblib.load(TFIDF_PATH)
-label_encoder = joblib.load(LABEL_ENCODER_PATH)
 
-print('Loading SBERT model...')
-sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
+model = None
+tfidf = None
+label_encoder = None
+sbert_model = None
 
+
+def load_classifier():
+    global model, tfidf, label_encoder, sbert_model
+
+    if model is None:
+        print('Loading complaint classifier...')
+        model = joblib.load(MODEL_PATH)
+
+    if tfidf is None:
+        tfidf = joblib.load(TFIDF_PATH)
+
+    if label_encoder is None:
+        label_encoder = joblib.load(LABEL_ENCODER_PATH)
+
+    if sbert_model is None:
+        print('Loading SBERT model...')
+        sbert_model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def rule_based_adjustment(text, predicted_label):
     t = text.lower()
@@ -49,6 +65,8 @@ def rule_based_adjustment(text, predicted_label):
 # category, confidence, top_predictions
 
 def classify_complaint(text):
+    load_classifier()
+
     try:
         sbert_emb = csr_matrix(sbert_model.encode([text]))
         tfidf_vec = tfidf.transform([text])

@@ -2,10 +2,17 @@ import json
 from groq import Groq
 from django.conf import settings
 
-client = Groq(api_key=settings.GROQ_API_KEY)
+def get_groq_client():
+    if not settings.GROQ_API_KEY:
+        raise ValueError('GROQ_API_KEY missing')
+
+    return Groq(api_key=settings.GROQ_API_KEY)
+
 
 
 def generate_analysis(prompt):
+    client = get_groq_client()
+    
     response = client.chat.completions.create(
         model='llama-3.3-70b-versatile',
         temperature=0.2,

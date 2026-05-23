@@ -9,8 +9,18 @@ INDEX_DIR = os.path.join(BASE_DIR, 'faiss_index')
 INDEX_PATH = os.path.join(INDEX_DIR, 'index.faiss')
 CHUNKS_PATH = os.path.join(INDEX_DIR, 'chunks.pkl')
 
-embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+embedding_model = None
+retriever = None
 
+def get_embedding_model():
+    global embedding_model
+
+    if embedding_model is None:
+        print('Loading embedding model...')
+        embedding_model = SentenceTransformer(
+            'sentence-transformers/all-MiniLM-L6-v2'
+        )
+    return embedding_model
 
 class RAGRetriever:
     def __init__(self):
@@ -27,7 +37,8 @@ class RAGRetriever:
     def search(self, query, k=3):
         if self.index is None:
             return []
-
+        
+        embedding_model=get_embedding_model()
         vector = embedding_model.encode([query])
         _, indices = self.index.search(vector, k)
 
@@ -38,5 +49,10 @@ class RAGRetriever:
 
         return results
 
+def get_retriever():
+    global retriever
 
-retriever = RAGRetriever()
+    if retriever is None:
+        retriever = RAGRetriever()
+
+    return retriever
