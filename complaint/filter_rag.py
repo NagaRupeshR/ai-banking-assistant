@@ -1,4 +1,4 @@
-from .rag import retriever
+from .rag import get_retriever
 from .rag_api import api_web_rag
 from .llm import generate_analysis
 
@@ -18,8 +18,12 @@ Returns:
     ]
 }
 """
+
+
+
 def filtered_rag_content(text):
 
+    retriever=get_retriever()
     # 1. Retrieve FAISS documents (trusted RBI content)
     docs = retriever.search(text, k=3)
 

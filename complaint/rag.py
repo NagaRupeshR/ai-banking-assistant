@@ -2,6 +2,7 @@ import os
 import pickle
 import faiss
 from sentence_transformers import SentenceTransformer
+from .embedding import get_embedding_model
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_DIR = os.path.join(BASE_DIR, 'faiss_index')
@@ -9,18 +10,8 @@ INDEX_DIR = os.path.join(BASE_DIR, 'faiss_index')
 INDEX_PATH = os.path.join(INDEX_DIR, 'index.faiss')
 CHUNKS_PATH = os.path.join(INDEX_DIR, 'chunks.pkl')
 
-embedding_model = None
+embedding_model = get_embedding_model()
 retriever = None
-
-def get_embedding_model():
-    global embedding_model
-
-    if embedding_model is None:
-        print('Loading embedding model...')
-        embedding_model = SentenceTransformer(
-            'sentence-transformers/all-MiniLM-L6-v2'
-        )
-    return embedding_model
 
 class RAGRetriever:
     def __init__(self):
@@ -38,7 +29,7 @@ class RAGRetriever:
         if self.index is None:
             return []
         
-        embedding_model=get_embedding_model()
+        
         vector = embedding_model.encode([query])
         _, indices = self.index.search(vector, k)
 

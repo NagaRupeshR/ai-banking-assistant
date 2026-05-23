@@ -11,8 +11,6 @@ MODEL_PATH = os.path.join(MODEL_DIR, 'model.pkl')
 TFIDF_PATH = os.path.join(MODEL_DIR, 'tfidf.pkl')
 LABEL_ENCODER_PATH = os.path.join(MODEL_DIR, 'label_encoder.pkl')
 
-print('Loading complaint classifier...')
-
 model = None
 tfidf = None
 label_encoder = None
@@ -60,12 +58,13 @@ def rule_based_adjustment(text, predicted_label):
 
     return predicted_label
 
+# preload the pkls
+load_classifier()
 
 # Returns:
 # category, confidence, top_predictions
 
 def classify_complaint(text):
-    load_classifier()
 
     try:
         sbert_emb = csr_matrix(sbert_model.encode([text]))
