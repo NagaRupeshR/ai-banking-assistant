@@ -78,11 +78,10 @@ def filtered_rag_content(text):
     combined_context = "\n\n".join(numbered_context)
 
     # 4. Prompt
-    prompt = f"""
+    prompt = prompt = f"""
 You are an expert context filtering system for Indian banking complaints.
 
-Your task is to extract ONLY the parts of the retrieved documents
-that are directly useful for resolving the complaint.
+Your task is to extract ONLY the minimal document fragments that are directly and explicitly useful for resolving the complaint.
 
 USER COMPLAINT:
 {text}
@@ -90,16 +89,46 @@ USER COMPLAINT:
 RETRIEVED DOCUMENTS:
 {combined_context}
 
-INSTRUCTIONS:
-1. Review all documents.
-2. Extract only the useful parts.
-3. Ignore irrelevant, duplicate, or generic information.
-4. For each extracted part, preserve the exact source.
-5. If the source is from FAISS, set source as "faiss".
-6. If the source is from API, set source as the exact URL.
-7. Do not explain your reasoning.
+STRICT FILTERING RULES:
+1. Extract ONLY information that directly helps answer, resolve, verify, or investigate the complaint.
+2. DO NOT include background information, introductions, summaries, generic banking explanations, policy overviews, disclaimers, examples, advertisements, navigation text, greetings, or unrelated legal text.
+3. DO NOT include partially relevant content.
+4. DO NOT infer, assume, summarize, reinterpret, or generate new information.
+5. DO NOT merge multiple sections unless all parts are directly relevant.
+6. DO NOT include duplicate or near-duplicate content.
+7. DO NOT include content that is merely topically related.
+8. Include content ONLY if it directly answers:
+   - what happened,
+   - why it happened,
+   - applicable banking rule/process,
+   - required action,
+   - escalation path,
+   - timelines,
+   - charges/fees,
+   - refund/reversal conditions,
+   - RBI/bank compliance obligations,
+   - transaction failure handling,
+   - KYC/account/block/fraud procedures,
+   - complaint resolution process.
+9. If relevance is uncertain, EXCLUDE the content.
+10. Prefer shorter precise excerpts over long passages.
+11. Preserve the original wording exactly as it appears in the source.
+12. Never fabricate or hallucinate missing details.
+13. Output must contain ONLY evidence grounded in the retrieved documents.
+14. If no directly useful evidence exists, return an empty sources list.
 
-Return ONLY valid JSON.
+SOURCE RULES:
+1. Preserve the exact source for every extracted part.
+2. If the source is from FAISS, set source as "faiss".
+3. If the source is from API, set source as the exact URL.
+
+OUTPUT RULES:
+1. Return ONLY valid JSON.
+2. Do not include markdown.
+3. Do not include explanations.
+4. Do not include reasoning.
+5. Do not include notes or comments.
+6. The JSON must strictly follow the schema below.
 
 JSON FORMAT:
 {{
